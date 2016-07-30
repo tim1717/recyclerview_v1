@@ -14,6 +14,7 @@ import android.view.View;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -51,6 +52,7 @@ public class RecyclerTouchHelper extends ItemTouchHelper.SimpleCallback {
     }
 
     public void disableSwipePos(List<Integer> cellPos, boolean addOrNew) {
+        cellPos = new LinkedList<Integer>(cellPos);
         if (addOrNew) {
             Set<Integer> asSet = new LinkedHashSet<>(disabledSwipePos);
             asSet.addAll(cellPos);
@@ -142,10 +144,15 @@ public class RecyclerTouchHelper extends ItemTouchHelper.SimpleCallback {
     }
 
     private void swipePhaseView(View itemView, float dX) {
+        final float minAlpha = 0.15f;
         float maxWidth = (float) itemView.getWidth();
         float absPos = Math.abs(dX);
 
-        itemView.setAlpha((float) 1.0 - (absPos / maxWidth));
+        float alpha = (float) 1 - (absPos / maxWidth);
+        if (alpha < minAlpha)
+            alpha = minAlpha;
+
+        itemView.setAlpha(alpha);
     }
 
     public void setSwipeDrawBgView(String leftColorHex, Bitmap leftIcon,
