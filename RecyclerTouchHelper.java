@@ -12,18 +12,23 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.view.View;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
 public class RecyclerTouchHelper extends ItemTouchHelper.SimpleCallback {
     public static final String TAG = RecyclerTouchHelper.class.getSimpleName();
 
     private Handler action;
     private int actionId1, actionId2;
 
-    private int disablePos = -1;
+    private List<Integer> disabledSwipePos = new ArrayList<Integer>();
 
     private Paint p = new Paint();
     private int leftColor, rightColor;
-    private String defLeftColorHex = "#0000FF";
-    private String defRightColorHex = "#FF0000";
+    private static final int defLeftColor = Color.parseColor("#00FF00");
+    private static final int defRightColor = Color.parseColor("#FF0000");
     private Bitmap leftIcon, rightIcon;
     private float padding = 0;
     private float cols = 1;
@@ -35,43 +40,58 @@ public class RecyclerTouchHelper extends ItemTouchHelper.SimpleCallback {
         this.actionId2 = actionId2;
     }
 
-    public void disableSwipePos(int pos) {
-        this.disablePos = pos;
-    }
-
-    public void setSwipeContent(String leftColorHex, Bitmap leftIcon,
-                                String rightColorHex, Bitmap rightIcon, float padding) {
-        this.leftIcon = leftIcon;
-        this.rightIcon = rightIcon;
-        this.padding = padding;
-        try {
-            if (TextUtils.isEmpty(leftColorHex))
-                leftColorHex = this.defLeftColorHex;
-            leftColor = Color.parseColor(leftColorHex);
-        } catch (IllegalArgumentException e) {
-            leftColor = Color.parseColor(this.defLeftColorHex);
-        }
-        try {
-            if (TextUtils.isEmpty(rightColorHex))
-                rightColorHex = this.defRightColorHex;
-            rightColor = Color.parseColor(rightColorHex);
-        } catch (IllegalArgumentException e) {
-            rightColor = Color.parseColor(this.defRightColorHex);
+    public void disableSwipePos(int cellPos, boolean addOrNew) {
+        if (addOrNew) {
+            if (!disabledSwipePos.contains(cellPos))
+                disabledSwipePos.add(cellPos);
+        } else {
+            disabledSwipePos.clear();
+            disabledSwipePos.add(cellPos);
         }
     }
 
-    public void setSwipeContent(int cols) {
-        if (cols < 1) cols = 1;
-        this.cols = cols;
+    public void disableSwipePos(List<Integer> cellPos, boolean addOrNew) {
+        if (addOrNew) {
+            Set<Integer> asSet = new LinkedHashSet<>(disabledSwipePos);
+            asSet.addAll(cellPos);
+            disabledSwipePos = new ArrayList<Integer>(asSet);
+        } else {
+            disabledSwipePos.clear();
+            disabledSwipePos = cellPos;
+        }
     }
 
+    public void removeDisabledSwipePos(int cellPos) {
+        int pos = disabledSwipePos.indexOf(cellPos);
+        if (pos >= 0)
+            disabledSwipePos.remove(pos);
+    }
+
+    public boolean isSwipePosDisabled(int cellPos) {
+        if (disabledSwipePos.contains(cellPos))
+            return true;
+        else
+            return false;
+    }
+
+    public List<Integer> getDisabledSwipePos() {
+        return disabledSwipePos;
+    }
+
+    // can override drag with return 0
+    @Override
+    public int getDragDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+        return super.getDragDirs(recyclerView, viewHolder);
+    }
+
+    // can override swipe with return 0
     @Override
     public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
         int pos = viewHolder.getAdapterPosition();
 
         if (action == null)
             return 0;
-        if (disablePos >= 0 && disablePos == pos)
+        if (isSwipePosDisabled(pos))
             return 0;
 
         return super.getSwipeDirs(recyclerView, viewHolder);
@@ -109,50 +129,116 @@ public class RecyclerTouchHelper extends ItemTouchHelper.SimpleCallback {
         if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
             View itemView = viewHolder.itemView;
 
-            float maxWidth = (float) itemView.getWidth();
-            float absPos = Math.abs(dX);
+            swipePhaseView(itemView, dX);
 
-            itemView.setAlpha((float) 1.0 - (absPos / maxWidth));
-
-            float height = (float) itemView.getBottom() - (float) itemView.getTop();
-            float width = height / 3;
-
-            //TODO need to modify relative to gridlayout column position
-            float leftbg, rightbg, topbg, bottombg;
             if (dX > 0) {
-                p.setColor(leftColor);
-                leftbg = (float) itemView.getLeft() + padding;
-                rightbg = dX;
-                topbg = (float) itemView.getTop() + padding;
-                bottombg = (float) itemView.getBottom() - padding;
-                RectF background = new RectF(leftbg, topbg, rightbg, bottombg);
-                c.drawRect(background, p);
-
-                if (leftIcon != null) {
-                    RectF icon_dest = new RectF((float) itemView.getLeft() + width,
-                            (float) itemView.getTop() + width,
-                            (float) itemView.getLeft()+ 2 * width,
-                            (float)itemView.getBottom() - width);
-                    c.drawBitmap(leftIcon, null, icon_dest, p);
-                }
+                c = swipeRightDrawView(c, itemView, dX);
             } else {
-                p.setColor(rightColor);
-                leftbg = (float) itemView.getRight() + dX;
-                rightbg = (float) itemView.getRight() - padding;
-                topbg = (float) itemView.getTop() + padding;
-                bottombg = (float) itemView.getBottom() - padding;
-                RectF background = new RectF(leftbg, topbg, rightbg, bottombg);
-                c.drawRect(background, p);
-
-                if (leftIcon != null) {
-                    RectF icon_dest = new RectF((float) itemView.getRight() - 2 * width,
-                            (float) itemView.getTop() + width,
-                            (float) itemView.getRight() - width,
-                            (float)itemView.getBottom() - width);
-                    c.drawBitmap(rightIcon, null, icon_dest, p);
-                }
+                c = swipeLeftDrawView(c, itemView, dX);
             }
+
         }
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
     }
+
+    private void swipePhaseView(View itemView, float dX) {
+        float maxWidth = (float) itemView.getWidth();
+        float absPos = Math.abs(dX);
+
+        itemView.setAlpha((float) 1.0 - (absPos / maxWidth));
+    }
+
+    public void setSwipeDrawBgView(String leftColorHex, Bitmap leftIcon,
+                                   String rightColorHex, Bitmap rightIcon, float padding) {
+        this.leftIcon = leftIcon;
+        this.rightIcon = rightIcon;
+
+        try {
+            if (!TextUtils.isEmpty(leftColorHex)) {
+                leftColor = Color.parseColor(leftColorHex);
+            } else {
+                leftColor = defLeftColor;
+            }
+        } catch (IllegalArgumentException e) {
+            leftColor = defLeftColor;
+        }
+        try {
+            if (!TextUtils.isEmpty(rightColorHex)) {
+                rightColor = Color.parseColor(rightColorHex);
+            } else {
+                rightColor = defRightColor;
+            }
+        } catch (IllegalArgumentException e) {
+            rightColor = defRightColor;
+        }
+
+        if (padding >= 0)
+            this.padding = padding;
+    }
+
+    public void setSwipeDrawBgView(int cols) {
+        if (cols > 0)
+            this.cols = cols;
+    }
+
+    //TODO need to modify relative to gridlayout column position
+    private Canvas swipeRightDrawView(Canvas c, View itemView, float dX) {
+        float left_bg, right_bg, top_bg, bottom_bg;
+        float left_ic, right_ic, top_ic, bottom_ic, height, width_ic;
+        p.setColor(leftColor);
+
+        left_bg = (float) itemView.getLeft() + padding;
+        right_bg = dX;
+        top_bg = (float) itemView.getTop() + padding;
+        bottom_bg = (float) itemView.getBottom() - padding;
+
+        RectF background = new RectF(left_bg, top_bg, right_bg, bottom_bg);
+        c.drawRect(background, p);
+
+        if (leftIcon != null) {
+            height = (float) itemView.getBottom() - (float) itemView.getTop();
+            width_ic = height / 3;
+
+            left_ic = (float) itemView.getLeft() + width_ic;
+            right_ic = (float) itemView.getLeft() + 2 * width_ic;
+            top_ic = (float) itemView.getTop() + width_ic;
+            bottom_ic = (float) itemView.getBottom() - width_ic;
+
+            RectF icon_dest = new RectF(left_ic, top_ic, right_ic, bottom_ic);
+            c.drawBitmap(leftIcon, null, icon_dest, p);
+        }
+
+        return c;
+    }
+
+    //TODO need to modify relative to gridlayout column position
+    private Canvas swipeLeftDrawView(Canvas c, View itemView, float dX) {
+        float left_bg, right_bg, top_bg, bottom_bg;
+        float left_ic, right_ic, top_ic, bottom_ic, height, width_ic;
+        p.setColor(rightColor);
+
+        left_bg = (float) itemView.getRight() + dX;
+        right_bg = (float) itemView.getRight() - padding;
+        top_bg = (float) itemView.getTop() + padding;
+        bottom_bg = (float) itemView.getBottom() - padding;
+
+        RectF background = new RectF(left_bg, top_bg, right_bg, bottom_bg);
+        c.drawRect(background, p);
+
+        if (rightIcon != null) {
+            height = (float) itemView.getBottom() - (float) itemView.getTop();
+            width_ic = height / 3;
+
+            left_ic = (float) itemView.getRight() - 2 * width_ic;
+            right_ic = (float) itemView.getRight() - width_ic;
+            top_ic = (float) itemView.getTop() + width_ic;
+            bottom_ic = (float) itemView.getBottom() - width_ic;
+
+            RectF icon_dest = new RectF(left_ic, top_ic, right_ic, bottom_ic);
+            c.drawBitmap(rightIcon, null, icon_dest, p);
+        }
+
+        return c;
+    }
+
 }

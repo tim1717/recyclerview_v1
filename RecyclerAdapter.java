@@ -17,9 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by TML13 on 7/28/2016.
- */
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
     public static final String TAG = RecyclerAdapter.class.getSimpleName();
 
@@ -39,6 +36,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
             mImageView.setOnClickListener(this);
             mTextView1.setOnClickListener(this);
             itemView.setOnClickListener(this);
+        }
+
+        public View getImageView() {
+            return mImageView;
         }
 
         @Override

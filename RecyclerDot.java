@@ -139,10 +139,10 @@ public class RecyclerDot extends AppCompatActivity {
             Tool.toast(RecyclerDot.this, "switch layout");
             if (asListView) {
                 mLayoutManager = new GridLayoutManager(RecyclerDot.this, 2);
-                myRecyclerTouchHelper.setSwipeContent(2);
+                myRecyclerTouchHelper.setSwipeDrawBgView(2);
             } else {
                 mLayoutManager = new LinearLayoutManager(RecyclerDot.this);
-                myRecyclerTouchHelper.setSwipeContent(1);
+                myRecyclerTouchHelper.setSwipeDrawBgView(1);
             }
             mRecyclerView.setLayoutManager(mLayoutManager);
             asListView = !asListView;
@@ -186,8 +186,8 @@ public class RecyclerDot extends AppCompatActivity {
                     actionHandler, ACTION1, ACTION2);
             leftIcon = BitmapFactory.decodeResource(getResources(), android.R.drawable.ic_menu_info_details);
             rightIcon = BitmapFactory.decodeResource(getResources(), android.R.drawable.ic_menu_delete);
-            myRecyclerTouchHelper.setSwipeContent(null, leftIcon, null, rightIcon, 5 * metrics.density);
-            myRecyclerTouchHelper.setSwipeContent(1);
+            myRecyclerTouchHelper.setSwipeDrawBgView(null, leftIcon, null, rightIcon, 5 * metrics.density);
+            myRecyclerTouchHelper.setSwipeDrawBgView(1);
         }
 
         if (itemTouchHelper == null) {
@@ -201,7 +201,7 @@ public class RecyclerDot extends AppCompatActivity {
      */
     private void loadData(boolean defValues, boolean additonalData) {
         if (myRecyclerTouchHelper != null)
-            myRecyclerTouchHelper.disableSwipePos(0);
+            myRecyclerTouchHelper.disableSwipePos(0, false);
 
         if (defValues) {
             listItems = Tool.getSampleData(15);
