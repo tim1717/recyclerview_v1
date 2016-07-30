@@ -1,5 +1,5 @@
 # recyclerview_v1
-basic recyclerview with swiping
+basic recyclerview with swiping fun
 
 - click item-view: get item
 - click item-view's img: get item-img
