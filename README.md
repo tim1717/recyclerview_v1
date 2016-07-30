@@ -4,9 +4,10 @@ basic recyclerview with swiping
 - click item-view: get item
 - click item-view's img: get item-img
 - click item-view's txt: get item-txt
-- swipe left: remove item (reveal background)
-- swipe right: get item (reveal background)
-- disabled swipe for 1st item
+- swipe left action: remove item + reveal background
+- swipe right action: get item + reveal background
+- swipe visibility: gradually phases item-view's visibility
+- disabled swipe for Nth item (example default: 1st)
 - switch between list/grid view
 
-more TODO
+TODO
