@@ -10,7 +10,10 @@ basic recyclerview with swiping fun++
 - visibility: gradually phases view's visibility
 - switch between list/grid view
 
-####Swipe: image-only (sample cell=0)
-- only swipe item
+####Swipe: item-only (sample: cell[0])
+- only swipe image item
+
+####Swipe: reveal background
+- done with onDraw Canvas
 
 TODO
