@@ -15,6 +15,8 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 
 import com.watermelon.doodle.Log;
 import com.watermelon.doodle.R;
@@ -26,6 +28,7 @@ import java.util.Map;
 public class RecyclerDot extends AppCompatActivity {
     public static final String TAG = RecyclerDot.class.getSimpleName();
 
+    private DisplayMetrics metrics;
     private RecyclerView mRecyclerView;
     private RecyclerAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -34,15 +37,14 @@ public class RecyclerDot extends AppCompatActivity {
     private SwipeRefreshLayout.OnRefreshListener mRefreshListener;
     private RecyclerTouchHelper myRecyclerTouchHelper;
     private ItemTouchHelper itemTouchHelper;
-    private List<Map<String, String>> listItems;
+    private AdapterView.OnItemClickListener onItemClickListener;
 
+    private List<Map<String, String>> listItems;
     private boolean asListView = true;
     private Bitmap leftIcon, rightIcon;
 
     public static final int ACTION1 = 1;
     public static final int ACTION2 = 2;
-
-    DisplayMetrics metrics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +52,6 @@ public class RecyclerDot extends AppCompatActivity {
         Log.v(TAG, "onCreate");
         setContentView(R.layout.activity_recycler);
         overridePendingTransition(R.anim.push_left_in, R.anim.zoom_exit);
-
-        metrics = getResources().getDisplayMetrics();
 
         initViews();
     }
@@ -83,6 +83,12 @@ public class RecyclerDot extends AppCompatActivity {
         super.onDestroy();
     }
 
+    /**
+     * <pre>
+     * handle actions from outside
+     * includes: recycler swipe helper
+     * </pre>
+     */
     private Handler actionHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -107,6 +113,8 @@ public class RecyclerDot extends AppCompatActivity {
     };
 
     private void initViews() {
+        metrics = getResources().getDisplayMetrics();
+
         ActionBar actionBar = getSupportActionBar();
         try {
             actionBar.setHomeButtonEnabled(true);
@@ -136,6 +144,7 @@ public class RecyclerDot extends AppCompatActivity {
             finish();
             return true;
         } else if (id == R.id.test1) {
+            // recycler switch layout
             Tool.toast(RecyclerDot.this, "switch layout");
             if (asListView) {
                 mLayoutManager = new GridLayoutManager(RecyclerDot.this, 2);
@@ -148,10 +157,10 @@ public class RecyclerDot extends AppCompatActivity {
             asListView = !asListView;
             return true;
         } else if (id == R.id.test2) {
-            Tool.toast(RecyclerDot.this, "test2");
+            Tool.toast(RecyclerDot.this, "nada");
             return true;
         } else if (id == R.id.test3) {
-            Tool.toast(RecyclerDot.this, "test3");
+            Tool.toast(RecyclerDot.this, "nada");
             return true;
         }
 
@@ -159,17 +168,38 @@ public class RecyclerDot extends AppCompatActivity {
     }
 
     private void initList() {
+        // recycler layout manager
         if (mLayoutManager == null) {
             mLayoutManager = new LinearLayoutManager(RecyclerDot.this);
             mRecyclerView.setLayoutManager(mLayoutManager);
             asListView = true;
         }
 
+        // recycler click listener
+        if (onItemClickListener == null)
+            onItemClickListener = new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    String item1 = position + "." + mAdapter.getItem(position);
+
+                    if (id == R.id.cell_icon) {
+                        item1 = item1 + "-img";
+                    } else if (id == R.id.cell_text) {
+                        item1 = item1 + "-txt";
+                    }
+
+                    Log.d(TAG, item1);
+                    Tool.toast(RecyclerDot.this, item1);
+                }
+            };
+
+        // recycler adapter with listener
         if (mAdapter == null) {
-            mAdapter = new RecyclerAdapter(RecyclerDot.this);
+            mAdapter = new RecyclerAdapter(RecyclerDot.this, onItemClickListener);
             mRecyclerView.setAdapter(mAdapter);
         }
 
+        // recycler pulldown refresh
         if (mRefreshListener == null) {
             mRefreshListener = new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
@@ -181,15 +211,18 @@ public class RecyclerDot extends AppCompatActivity {
             mSwipeRefreshLayout.setOnRefreshListener(mRefreshListener);
         }
 
+        // recycler swipe helper
         if (myRecyclerTouchHelper == null) {
             myRecyclerTouchHelper = new RecyclerTouchHelper(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT,
-                    actionHandler, ACTION1, ACTION2);
+                    metrics, actionHandler, ACTION1, ACTION2);
+
             leftIcon = BitmapFactory.decodeResource(getResources(), android.R.drawable.ic_menu_info_details);
             rightIcon = BitmapFactory.decodeResource(getResources(), android.R.drawable.ic_menu_delete);
-            myRecyclerTouchHelper.setSwipeDrawBgView(null, leftIcon, null, rightIcon, 5 * metrics.density);
+            myRecyclerTouchHelper.setSwipeDrawBgView(null, leftIcon, null, rightIcon);
             myRecyclerTouchHelper.setSwipeDrawBgView(1);
         }
 
+        // attach swipe help to recycler
         if (itemTouchHelper == null) {
             itemTouchHelper = new ItemTouchHelper(myRecyclerTouchHelper);
             itemTouchHelper.attachToRecyclerView(mRecyclerView);

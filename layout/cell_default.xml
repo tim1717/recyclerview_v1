@@ -31,25 +31,32 @@
                 android:id="@+id/cell_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="5dp"
                 android:orientation="horizontal"
-                android:gravity="center_vertical"
+                android:gravity="center|start"
                 android:background="#ddddff">
 
                 <ImageView
                     android:id="@+id/cell_icon"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:src="@android:drawable/ic_menu_gallery"/>
+                    android:layout_weight="1"
+                    android:src="@android:drawable/ic_menu_gallery"
+                    android:background="#eeeeff"/>
 
                 <android.support.v7.widget.AppCompatTextView
                     android:id="@+id/cell_text"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
                     android:gravity="center"
-                    android:layout_marginLeft="5dp"
                     android:text="item1"
-                    app:textAllCaps="false"/>
+                    app:textAllCaps="false"
+                    android:background="#ccccff"/>
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
 
             </LinearLayout>
 
