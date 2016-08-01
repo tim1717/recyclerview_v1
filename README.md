@@ -12,10 +12,16 @@ basic recyclerview with swiping fun++
 ####Swipe: phase visibility
 - gradually phases view's visibility
 
-####Swipe: item-only (sample: cell[0])
+####Swipe: item-only
+
+(example in cell[0])
 - only swipe image item
 
 ####Swipe: reveal background
 - drawn with Canvas
+
+####Disable Swipe
+- disable swipe action for cell[i]
+- (instead being used to indicate which cells have different swipe method)
 
 TODO
