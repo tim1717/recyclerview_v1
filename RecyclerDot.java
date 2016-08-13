@@ -85,7 +85,7 @@ public class RecyclerDot extends AppCompatActivity {
 
     /**
      * <pre>
-     * handle actions from outside
+     * handle actions
      * includes: recycler swipe helper
      * </pre>
      */
@@ -168,6 +168,7 @@ public class RecyclerDot extends AppCompatActivity {
     }
 
     private void initList() {
+        Log.v(TAG, "initList");
         // recycler layout manager
         if (mLayoutManager == null) {
             mLayoutManager = new LinearLayoutManager(RecyclerDot.this);
@@ -233,6 +234,7 @@ public class RecyclerDot extends AppCompatActivity {
      * loading sample data
      */
     private void loadData(boolean defValues, boolean additonalData) {
+        Log.v(TAG, "loadData " + defValues + additonalData);
         if (myRecyclerTouchHelper != null)
             myRecyclerTouchHelper.disableSwipePos(0, false);
 
@@ -248,6 +250,9 @@ public class RecyclerDot extends AppCompatActivity {
             } else {
                 mAdapter.setListItems(listItems);
             }
+        } else {
+            initList();
+            loadData(defValues, additonalData);
         }
     }
 }
