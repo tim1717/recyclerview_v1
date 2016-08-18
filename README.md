@@ -24,7 +24,7 @@ basic recyclerview with swiping fun++
 - disable swipe action for cell[i]
 - (instead being used to indicate which cells have different swipe method)
 
-*img: swipe item-only, full-swipe right/left*
+*img: phasing opacity,  swipe item-only,  full-swipe right/left*
 
 ![picture] (http://loveswatermelon.com/images/recyclerview-v1-1.png)
 ![picture] (http://loveswatermelon.com/images/recyclerview-v1-2.png)
