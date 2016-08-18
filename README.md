@@ -25,3 +25,9 @@ basic recyclerview with swiping fun++
 - (instead being used to indicate which cells have different swipe method)
 
 TODO
+
+![picture] (http://loveswatermelon.com/images/recyclerview_v1_1.png)
+
+![picture] (http://loveswatermelon.com/images/recyclerview_v1_2.png)
+
+![picture] (http://loveswatermelon.com/images/recyclerview_v1_3.png)
