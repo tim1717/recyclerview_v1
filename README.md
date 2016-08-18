@@ -26,8 +26,8 @@ basic recyclerview with swiping fun++
 
 TODO
 
-![picture] (http://loveswatermelon.com/images/recyclerview_v1_1.png)
+![picture] (http://loveswatermelon.com/images/recyclerview-v1-1.png)
 
-![picture] (http://loveswatermelon.com/images/recyclerview_v1_2.png)
+![picture] (http://loveswatermelon.com/images/recyclerview-v1-2.png)
 
-![picture] (http://loveswatermelon.com/images/recyclerview_v1_3.png)
+![picture] (http://loveswatermelon.com/images/recyclerview-v1-3.png)
