@@ -26,8 +26,8 @@ basic recyclerview with swiping fun++
 
 TODO
 
+img: swipe item-only, full-swipe right/left
+
 ![picture] (http://loveswatermelon.com/images/recyclerview-v1-1.png)
-
 ![picture] (http://loveswatermelon.com/images/recyclerview-v1-2.png)
-
 ![picture] (http://loveswatermelon.com/images/recyclerview-v1-3.png)
