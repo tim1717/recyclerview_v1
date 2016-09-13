@@ -2,13 +2,14 @@ package com.watermelon.doodle.RecyclerVw;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -28,11 +29,17 @@ import java.util.Map;
 public class RecyclerDot extends AppCompatActivity {
     public static final String TAG = RecyclerDot.class.getSimpleName();
 
+    public static final String IMAGE_SRC = "https://robohash.org/";
+    public static final String IMAGE_SRC_2 = "?set=set2";
+    public static final String IMAGE_SRC_3 = "?set=set3";
+    public static final String TEXT_SRC = "http://jsonplaceholder.typicode.com/todos";
+
     private DisplayMetrics metrics;
     private RecyclerView mRecyclerView;
     private RecyclerAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
+    private RecyclerDecoration mRecyclerDecoration;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private SwipeRefreshLayout.OnRefreshListener mRefreshListener;
     private RecyclerTouchHelper myRecyclerTouchHelper;
@@ -40,11 +47,11 @@ public class RecyclerDot extends AppCompatActivity {
     private AdapterView.OnItemClickListener onItemClickListener;
 
     private List<Map<String, String>> listItems;
-    private boolean asListView = true;
+    private Drawable divider;
     private Bitmap leftIcon, rightIcon;
 
-    public static final int ACTION1 = 1;
-    public static final int ACTION2 = 2;
+    public static final int LEFTACTION = 1;
+    public static final int RIGHTACTION = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,9 +69,7 @@ public class RecyclerDot extends AppCompatActivity {
         Log.v(TAG, "onResume");
         initList();
 
-        if (listItems == null || listItems.isEmpty()) {
-            loadData(true, false);
-        }
+        loadData(true, false);
     }
 
     @Override
@@ -84,28 +89,35 @@ public class RecyclerDot extends AppCompatActivity {
     }
 
     /**
-     * <pre>
      * handle actions
-     * includes: recycler swipe helper
-     * </pre>
+     * <p>includes: recycler swipe action
      */
     private Handler actionHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
 
-            switch (msg.what)
-            {
-                case ACTION1:
+            switch (msg.what) {
+                // === SWIPE_ACTION ===
+                case LEFTACTION: {
                     int value1 = (int) msg.obj;
+                    String item1 = mAdapter.getItem(value1);
                     mAdapter.removeListItem(value1);
+                    // reset state of new cell occupant
+                    if (value1 < mAdapter.getItemCount()) {
+                        mAdapter.notifyItemChanged(value1);
+                    }
+                    Tool.toast(RecyclerDot.this, "del! [" + value1 + "] " + item1);
                     break;
-                case ACTION2:
+                }
+                // === SWIPE_ACTION ===
+                case RIGHTACTION: {
                     int value2 = (int) msg.obj;
-                    String item = mAdapter.getItem(value2);
-                    Tool.toast(RecyclerDot.this, item + "-right");
+                    String item2 = mAdapter.getItem(value2);
                     mAdapter.notifyItemChanged(value2);
+                    Tool.toast(RecyclerDot.this, "right! [" + value2 + "] " + item2);
                     break;
+                }
                 default:
                     break;
             }
@@ -113,6 +125,7 @@ public class RecyclerDot extends AppCompatActivity {
     };
 
     private void initViews() {
+        Log.v(TAG, "initViews");
         metrics = getResources().getDisplayMetrics();
 
         ActionBar actionBar = getSupportActionBar();
@@ -124,8 +137,15 @@ public class RecyclerDot extends AppCompatActivity {
         }
 
         mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
-        mRecyclerView.setHasFixedSize(false);
 
+        // === DIVIDERS ===
+        if (mRecyclerDecoration == null) {
+            divider = ContextCompat.getDrawable(RecyclerDot.this, R.drawable.divider_hrz_blue);
+            mRecyclerDecoration = new RecyclerDecoration(divider);
+            mRecyclerView.addItemDecoration(mRecyclerDecoration);
+        }
+
+        // recycler pulldown refresh
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_list);
     }
 
@@ -144,17 +164,7 @@ public class RecyclerDot extends AppCompatActivity {
             finish();
             return true;
         } else if (id == R.id.test1) {
-            // recycler switch layout
-            Tool.toast(RecyclerDot.this, "switch layout");
-            if (asListView) {
-                mLayoutManager = new GridLayoutManager(RecyclerDot.this, 2);
-                myRecyclerTouchHelper.setSwipeDrawBgView(2);
-            } else {
-                mLayoutManager = new LinearLayoutManager(RecyclerDot.this);
-                myRecyclerTouchHelper.setSwipeDrawBgView(1);
-            }
-            mRecyclerView.setLayoutManager(mLayoutManager);
-            asListView = !asListView;
+            Tool.toast(RecyclerDot.this, "nada");
             return true;
         } else if (id == R.id.test2) {
             Tool.toast(RecyclerDot.this, "nada");
@@ -173,30 +183,42 @@ public class RecyclerDot extends AppCompatActivity {
         if (mLayoutManager == null) {
             mLayoutManager = new LinearLayoutManager(RecyclerDot.this);
             mRecyclerView.setLayoutManager(mLayoutManager);
-            asListView = true;
         }
 
-        // recycler click listener
-        if (onItemClickListener == null)
+        // === RECYCLER CLICK ===
+        if (onItemClickListener == null) {
             onItemClickListener = new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    String item1 = position + "." + mAdapter.getItem(position);
+                    String item1 = "[" + position + "] " + mAdapter.getItem(position);
 
                     if (id == R.id.cell_icon) {
-                        item1 = item1 + "-img";
+                        item1 = "ic " + item1;
                     } else if (id == R.id.cell_text) {
-                        item1 = item1 + "-txt";
+                        item1 = "txt " + item1;
+                    } else if (id == R.id.left_option) {
+                        item1 = "right_ " + item1;
+                        mAdapter.notifyItemChanged(position);
+                    } else if (id == R.id.right_option) {
+                        item1 = "del_ " + item1;
+                        mAdapter.removeListItem(position);
+                        // === STYLE_LOCK_L | STYLE_LOCK_R | STYLE_LOCK ===
+                        // reset state of new cell occupant
+                        if (position < mAdapter.getItemCount()) {
+                            mAdapter.notifyItemChanged(position);
+                        }
                     }
 
                     Log.d(TAG, item1);
                     Tool.toast(RecyclerDot.this, item1);
                 }
             };
+        }
 
-        // recycler adapter with listener
+        // recycler adapter with click listener
         if (mAdapter == null) {
             mAdapter = new RecyclerAdapter(RecyclerDot.this, onItemClickListener);
+            mRecyclerView.setHasFixedSize(false);
             mRecyclerView.setAdapter(mAdapter);
         }
 
@@ -205,6 +227,7 @@ public class RecyclerDot extends AppCompatActivity {
             mRefreshListener = new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
+                    Tool.toast(RecyclerDot.this, "refresh with new sample");
                     loadData(false, false);
                     mSwipeRefreshLayout.setRefreshing(false);
                 }
@@ -212,18 +235,26 @@ public class RecyclerDot extends AppCompatActivity {
             mSwipeRefreshLayout.setOnRefreshListener(mRefreshListener);
         }
 
-        // recycler swipe helper
+        // recycler SWIPE HELPER
         if (myRecyclerTouchHelper == null) {
             myRecyclerTouchHelper = new RecyclerTouchHelper(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT,
-                    metrics, actionHandler, ACTION1, ACTION2);
+                    metrics, actionHandler, LEFTACTION, RIGHTACTION);
 
+            // === STYLE_LOCK_L | STYLE_LOCK_R | STYLE_LOCK ===
+            // optional, will default to behind-L/R-image's width positions
+            myRecyclerTouchHelper.setCustomLeftThreshold((int) (70 * metrics.density));
+            myRecyclerTouchHelper.setCustomRightThreshold((int) (70 * metrics.density));
+
+            // === STYLE_DRAW_HALF | STYLE_DRAW ===
             leftIcon = BitmapFactory.decodeResource(getResources(), android.R.drawable.ic_menu_info_details);
             rightIcon = BitmapFactory.decodeResource(getResources(), android.R.drawable.ic_menu_delete);
             myRecyclerTouchHelper.setSwipeDrawBgView(null, leftIcon, null, rightIcon);
-            myRecyclerTouchHelper.setSwipeDrawBgView(1);
+
+            // === STYLE_DISABLED ===
+            myRecyclerTouchHelper.disableSwipePos(0, false);
         }
 
-        // attach swipe help to recycler
+        // attach swipe helper to recycler
         if (itemTouchHelper == null) {
             itemTouchHelper = new ItemTouchHelper(myRecyclerTouchHelper);
             itemTouchHelper.attachToRecyclerView(mRecyclerView);
@@ -234,14 +265,13 @@ public class RecyclerDot extends AppCompatActivity {
      * loading sample data
      */
     private void loadData(boolean defValues, boolean additonalData) {
+        if (listItems != null && listItems.isEmpty()) return;
         Log.v(TAG, "loadData " + defValues + additonalData);
-        if (myRecyclerTouchHelper != null)
-            myRecyclerTouchHelper.disableSwipePos(0, false);
 
         if (defValues) {
-            listItems = Tool.getSampleData(15);
+            listItems = Tool.getSampleData(20);
         } else {
-            listItems = Tool.getSampleData(Tool.randomInt(3, 10), Tool.randomInt(13, 31));
+            listItems = Tool.getSampleData(Tool.randomInt(8, 20), Tool.randomInt(13, 31));
         }
 
         if (mAdapter != null) {

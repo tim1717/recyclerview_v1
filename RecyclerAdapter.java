@@ -2,15 +2,19 @@ package com.watermelon.doodle.RecyclerVw;
 
 import android.app.Activity;
 import android.content.Context;
-import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
+import com.watermelon.doodle.Log;
 import com.watermelon.doodle.R;
+import com.watermelon.doodle.core.PicassoOps;
 import com.watermelon.doodle.tools.Tool;
 
 import java.util.ArrayList;
@@ -21,30 +25,53 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     public static final String TAG = RecyclerAdapter.class.getSimpleName();
 
     private Activity mActivity;
+    private float density;
     private AdapterView.OnItemClickListener onItemClickListener;
     private static List<Map<String, String>> listItems = new ArrayList<Map<String, String>>();
 
     public class ViewHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener {
-        public ImageView mImageView;
-        public AppCompatTextView mTextView1;
+        public LinearLayout cTopView;
+        public ImageView imageOptLeft, imageOptRight;
+        public ImageView imageIcon;
+        public TextView textView;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            mImageView = (ImageView) itemView.findViewById(R.id.cell_icon);
-            mTextView1 = (AppCompatTextView) itemView.findViewById(R.id.cell_text);
+            cTopView = (LinearLayout) itemView.findViewById(R.id.cell_content);
+            imageOptLeft = (ImageView) itemView.findViewById(R.id.left_option);
+            imageOptRight = (ImageView) itemView.findViewById(R.id.right_option);
+            imageIcon = (ImageView) itemView.findViewById(R.id.cell_icon);
+            textView = (TextView) itemView.findViewById(R.id.cell_text);
 
-            mImageView.setOnClickListener(this);
-            mTextView1.setOnClickListener(this);
-            itemView.setOnClickListener(this);
+            // === RECYCLER CLICK ===
+            imageOptLeft.setOnClickListener(this);
+            imageOptRight.setOnClickListener(this);
+            imageIcon.setOnClickListener(this);
+            textView.setOnClickListener(this);
         }
 
-        // for swipe helper
-        public View getSwipeView() {
-            return mImageView;
+        // for SWIPE HELPER
+        public View getTopView() {
+            return cTopView;
         }
 
-        // send recycler onclick to activity listener
+        // for SWIPE HELPER
+        public View getLeftOpt() {
+            return imageOptLeft;
+        }
+
+        // for SWIPE HELPER
+        public View getRightOpt() {
+            return imageOptRight;
+        }
+
+        // for SWIPE HELPER
+        public View getImage() {
+            return imageIcon;
+        }
+
+        // === RECYCLER CLICK ===
         @Override
         public void onClick(View v) {
             if (onItemClickListener != null)
@@ -54,11 +81,15 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
 
     public RecyclerAdapter(Activity activity) {
         this.mActivity = activity;
+        DisplayMetrics metrics = this.mActivity.getResources().getDisplayMetrics();
+        density = metrics.density;
     }
 
     public RecyclerAdapter(Activity activity, AdapterView.OnItemClickListener onItemClickListener) {
         this.mActivity = activity;
         this.onItemClickListener = onItemClickListener;
+        DisplayMetrics metrics = this.mActivity.getResources().getDisplayMetrics();
+        density = metrics.density;
     }
 
     public void setListItems(List<Map<String, String>> listItems) {
@@ -92,15 +123,26 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
             map = getMap(position);
             textItem = map.get(Tool.keyITEM1);
         } catch (Exception e) {
+            Log.w(TAG, "getMap null " + position);
+            return;
         }
 
-        // incase of ItemTouchHelper.clearView bug? needed to restore alpha
-        if (holder.getSwipeView().getAlpha() < 1f) {
-            holder.getSwipeView().setAlpha(1f);
-        }
+        Log.d(TAG, "bindView " + position + "," + textItem);
 
-        AppCompatTextView textView1 = holder.mTextView1;
+        // === STYLE_LOCK_L | STYLE_LOCK_R | STYLE_LOCK ===
+        fixCellTranslationX(holder, position);
 
+        ImageView imageView = holder.imageIcon;
+        ImageView imageViewLeft = holder.imageOptLeft;
+        ImageView imageViewRight = holder.imageOptRight;
+        TextView textView1 = holder.textView;
+
+        PicassoOps.PicassoImage(RecyclerDot.IMAGE_SRC + textItem, imageView,
+                (int) (70 * density), (int) (70 * density), null, TAG);
+        PicassoOps.PicassoImage(RecyclerDot.IMAGE_SRC + textItem + RecyclerDot.IMAGE_SRC_2, imageViewLeft,
+                (int) (70 * density), (int) (70 * density), null, TAG);
+        PicassoOps.PicassoImage(RecyclerDot.IMAGE_SRC + textItem + RecyclerDot.IMAGE_SRC_3, imageViewRight,
+                (int) (70 * density), (int) (70 * density), null, TAG);
         textView1.setText(textItem);
     }
 
@@ -127,4 +169,17 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         this.listItems.addAll(newlistItems);
         notifyDataSetChanged();
     }
+
+    // === STYLE_LOCK_L | STYLE_LOCK_R | STYLE_LOCK ===
+    private void fixCellTranslationX(RecyclerAdapter.ViewHolder holder, int position) {
+        Object tagL = holder.getLeftOpt().getTag();
+        Object tagR = holder.getRightOpt().getTag();
+        if (tagL != null || tagR != null) {
+            Log.w(TAG, "cell FIXING " + position);
+            holder.getLeftOpt().setTag(null);
+            holder.getRightOpt().setTag(null);
+            holder.getTopView().setTranslationX(0);
+        }
+    }
+
 }
