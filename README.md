@@ -3,6 +3,7 @@ basic recyclerview with many swiping styles
 
 #####onClickListener - RECYCLER_CLICK
 - clickable cell views
+- 
 #####Swipe Action
 - handling swipe actions
 
