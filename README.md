@@ -41,6 +41,12 @@ basic recyclerview with many swiping styles
 
 
 You can find relevant code by the relevant name-tags:
+
 RECYCLER_CLICK, STYLE_PHASE, STYLE_DRAW, STYLE_LOCK, STYLE_LOCK_R, STYLE_LOCK_L, STYLE_DISABLED
 
 TODO
+
+
+Shout out to:
+
+https://robohash.org/ 
