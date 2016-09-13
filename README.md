@@ -1,11 +1,16 @@
 # recyclerview_v1
 basic recyclerview with many swiping styles
 
+_simple, achievable code for each style; no need for 3rd-party libraries!_
+
 #####onClickListener - RECYCLER_CLICK
 - clickable cell views
 
 #####Swipe Action
 - handling swipe actions
+
+#####List Dividers - DIVIDER
+- using a simple ItemDecoration
 
 #####Standard Swipe
 - full R/L swipe
@@ -42,7 +47,7 @@ basic recyclerview with many swiping styles
 
 You can find relevant code by the relevant name-tags:
 
-RECYCLER_CLICK, STYLE_PHASE, STYLE_DRAW, STYLE_LOCK, STYLE_LOCK_R, STYLE_LOCK_L, STYLE_DISABLED
+RECYCLER_CLICK, DIVIDER, STYLE_PHASE, STYLE_DRAW, STYLE_LOCK, STYLE_LOCK_R, STYLE_LOCK_L, STYLE_DISABLED
 
 /TODO
 
