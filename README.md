@@ -7,7 +7,7 @@ basic recyclerview with many swiping styles
 #####Swipe Action
 - handling swipe actions
 
-###Standard Swipe
+#####Standard Swipe
 - full R/L swipe
 
 ###Swipe: phasing visibility - STYLE_PHASE
@@ -44,9 +44,8 @@ You can find relevant code by the relevant name-tags:
 
 RECYCLER_CLICK, STYLE_PHASE, STYLE_DRAW, STYLE_LOCK, STYLE_LOCK_R, STYLE_LOCK_L, STYLE_DISABLED
 
-TODO
+/TODO
 
 
-Shout out to:
-
-https://robohash.org/ 
+#####Shout out to:
+- https://robohash.org/ 
