@@ -32,8 +32,8 @@ public class RecyclerTouchHelper extends ItemTouchHelper.SimpleCallback {
     private static final int STYLE_LOCK_L = 1;      // locked to behind-left view
     private static final int STYLE_LOCK_R = 2;      // locked to behind-right view
     private static final int STYLE_LOCK = 3;        // locked to either behind views
-    private static final int STYLE_DRAW_HALF = 4;   // draw bg & locked halfway
-    private static final int STYLE_DRAW = 5;        // draw bg & draw icon, full swipe + phase
+    private static final int STYLE_DRAW_HALF = 4;   // draw bg/icon, locked halfway
+    private static final int STYLE_DRAW = 5;        // draw bg/icon, full swipe + phase
     private static final int STYLE_PHASE = 6;       // phase + standard swipe
                                                     // default: standard swipe
 

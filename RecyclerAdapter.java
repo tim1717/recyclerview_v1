@@ -71,7 +71,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
             return imageIcon;
         }
 
-        // === RECYCLER CLICK ===
+        // === RECYCLER_CLICK ===
         @Override
         public void onClick(View v) {
             if (onItemClickListener != null)

@@ -185,7 +185,7 @@ public class RecyclerDot extends AppCompatActivity {
             mRecyclerView.setLayoutManager(mLayoutManager);
         }
 
-        // === RECYCLER CLICK ===
+        // === RECYCLER_CLICK ===
         if (onItemClickListener == null) {
             onItemClickListener = new AdapterView.OnItemClickListener() {
                 @Override
