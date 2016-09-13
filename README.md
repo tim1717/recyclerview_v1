@@ -1,10 +1,9 @@
 # recyclerview_v1
 basic recyclerview with many swiping styles
 
-####onClickListener - RECYCLER_CLICK
+#####onClickListener - RECYCLER_CLICK
 - clickable cell views
-
-####Swipe Action
+#####Swipe Action
 - handling swipe actions
 
 ###Standard Swipe
